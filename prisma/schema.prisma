@@ -16,25 +16,35 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  username      String?   @unique
+  bio           String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Auth.js required relations
   accounts      Account[]
   sessions      Session[]
+
+  // App relations
   gigs          Gig[]
+  applications  Application[]
 }
 
 model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  
+  access_token       String?  
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -47,14 +57,61 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
 model Gig {
+  id           String   @id @default(cuid())
+  title        String
+  description  String   
+  price        Float
+  timeEstimate String
+  codeSnippet  String?  
+  published    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  author       User     @relation(fields: [authorId], references: [id])
+  authorId     String
+  category     Category @relation(fields: [categoryId], references: [id])
+  categoryId   String
+  applications Application[]
+}
+
+model Category {
   id          String   @id @default(cuid())
-  title       String
-  description String
-  price       Float
-  status      String   @default("open")
+  name        String   @unique
+  description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  authorId    String
-  author      User     @relation(fields: [authorId], references: [id])
+
+  // Relations
+  gigs        Gig[]
+}
+
+model Application {
+  id          String   @id @default(cuid())
+  message     String   
+  status      ApplicationStatus @default(PENDING)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  applicant   User     @relation(fields: [applicantId], references: [id])
+  applicantId String
+  gig         Gig      @relation(fields: [gigId], references: [id])
+  gigId       String
+}
+
+enum ApplicationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COMPLETED
 }
