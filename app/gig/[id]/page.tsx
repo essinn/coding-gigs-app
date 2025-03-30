@@ -1,5 +1,7 @@
 import React from "react";
 
-export const GigPage = () => {
+const GigPage = () => {
   return <div>GigPage</div>;
 };
+
+export default GigPage;
