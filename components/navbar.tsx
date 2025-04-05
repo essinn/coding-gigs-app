@@ -12,7 +12,7 @@ export const Navbar = () => {
 
   return (
     <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur">
-      <div className="container flex h-16 items-center justify-between px-4">
+      <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <Code className="h-6 w-6" />
           <h1 className="font-bold text-xl">CodingGigs</h1>
