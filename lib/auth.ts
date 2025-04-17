@@ -1,17 +1,21 @@
 import NextAuth from "next-auth";
 import GitHub from "next-auth/providers/github";
-import { getSession } from "next-auth/react";
+import { prisma } from "@/lib/prisma";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [GitHub],
 });
 
 export async function getCurrentUser() {
-  const session = await getSession();
+  const session = await auth();
 
   if (!session?.user?.email) {
     return null;
   }
 
-  return session.user;
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+
+  return user;
 }
